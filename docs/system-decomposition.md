@@ -1,224 +1,76 @@
-# System Decomposition: huhuGERMAN MVP (v1)
+PART 3: System Decomposition (Refined)
+1. Authentication Module
+Responsibility: Manage user identity and session persistence via Firebase.
 
-## 1. Authentication Module
-**Responsibility:** Manage user identity and session persistence via Firebase
+Inputs: Google Sign-In credentials.
 
-**Inputs:** 
-- Google Sign-In credentials (via Firebase Auth provider)
+Outputs: UserObject (UID, Email) or null.
 
-**Outputs:** 
-- UserObject (UID, Email, Name) or null
-- Authentication state (authenticated/unauthenticated)
+Offline Strategy: Firebase Auth automatically persists session tokens in LocalStorage.
 
-**Stored data:** No (handled by Firebase client SDK)
+2. Data Service (The "Content Loader")
+Responsibility: Unified interface for fetching Lessons and User Progress. Wraps Firebase Firestore.
 
-**Offline required:** Yes (must allow app access if session was previously active)
+Inputs: Collection paths, Document IDs.
 
-**Explicitly NOT responsible for:** 
-- User profile editing
-- Avatar uploads
-- Role-based access control beyond "Logged In"
+Outputs: Typed Data Objects (Lessons, UserProfile).
 
----
+Key Behavior: Uses enableIndexedDbPersistence().
 
-## 2. Progress Manager
-**Responsibility:** Track user advancement and determine lesson availability
+If Online: Fetches from server, updates cache.
 
-**Inputs:**
-- User ID
-- Current date
-- Lesson completion events
+If Offline: Fetches immediately from local IndexDB cache.
 
-**Outputs:**
-- Current lesson ID (suggested for today)
-- List of accessible lesson IDs (completed + current)
-- Overall progress metrics (e.g., "4 of 30 completed")
+Explicitly NOT responsible for: Custom caching logic (we rely on Firebase SDK).
 
-**Stored data:** Yes (Firestore: lastCompletedLessonId, completedLessons array, lastAccessDate)
+3. Progress Manager
+Responsibility: Business logic for "What lesson is next?"
 
-**Offline required:** Yes (local state must persist between sessions)
+Inputs: User Progress Object, Full Lesson List.
 
-**Explicitly NOT responsible for:**
-- Rendering lesson content
-- Enforcing daily limits
-- Streak tracking
+Outputs: currentLessonId, isLessonLocked(id).
 
----
+Stored Data: Firestore User Document (completedLessons: string[]).
 
-## 3. Navigation Controller
-**Responsibility:** Orchestrate lesson access based on progress state
+4. Navigation Controller
+Responsibility: Routing and Guarding.
 
-**Inputs:**
-- Progress state from Progress Manager
-- User navigation requests (forward/backward)
+Inputs: URL Routes, Progress Manager state.
 
-**Outputs:**
-- Current active lesson ID
-- Navigation availability flags (canGoBack, canGoForward)
-- Lesson list with access status
+Outputs: Rendered Route or Redirect.
 
-**Stored data:** No (stateless orchestrator)
+Logic: Prevents users from accessing /lesson/5 if they haven't completed /lesson/4.
 
-**Offline required:** Yes
+5. Lesson Renderer
+Responsibility: Transform JSON lesson data into the visual "H-U-H-U" UI.
 
-**Explicitly NOT responsible for:**
-- Modifying progress state
-- Rendering UI components
-- Content loading
+Inputs: Lesson Data Object.
 
----
+Outputs: React Components (The visual slides).
 
-## 4. Lesson Renderer
-**Responsibility:** Transform lesson data into HUHU visual structure
+State: Manages the internal "Step 1 -> Step 2 -> Step 3" state of the current lesson.
 
-**Inputs:**
-- Lesson data object (from cache/Firestore)
-- Render instructions from Navigation Controller
+6. Exercise Evaluator
+Responsibility: Deterministic validation of user input.
 
-**Outputs:**
-- Rendered HUHU sections (Hochdeutsch, Umgangssprache, Halt!, Übung)
-- Interactive exercise components
-- TTS trigger buttons
+Inputs: User Answer, Correct Answer (from DB), Exercise Type.
 
-**Stored data:** No (stateless rendering)
+Outputs: Boolean (Correct/Incorrect) + Feedback String.
 
-**Offline required:** Yes (render from cached data)
+Constraint: Pure function. No side effects.
 
-**Explicitly NOT responsible for:**
-- Determining lesson availability
-- Validating exercise answers
-- Managing navigation state
+7. TTS Service
+Responsibility: Wrapper around window.speechSynthesis.
 
----
+Inputs: Text, Lang (de-DE).
 
-## 5. Exercise Evaluator
-**Responsibility:** Perform deterministic validation of user input
+Outputs: Audio.
 
-**Inputs:**
-- User answer (string/selection ID)
-- Correct answer from lesson data
-- Exercise type identifier
+Fallback: If de-DE is missing, try generic German or fail gracefully (visual indicator only).
 
-**Outputs:**
-- Validation result (correct/incorrect)
-- Feedback message (deterministic, pre-written)
+8. Taro Display Controller
+Responsibility: Simple logic to show/hide the mascot.
 
-**Stored data:** No (pure logic function)
+Inputs: Current Route, Lesson Completion Event.
 
-**Offline required:** Yes
-
-**Explicitly NOT responsible for:**
-- Updating progress state
-- Generating dynamic feedback
-- Storing results
-
----
-
-## 6. Offline Persistence Layer
-**Responsibility:** Manage local cache and sync queue
-
-**Inputs:**
-- Firestore snapshots
-- Outgoing progress updates
-- Lesson content documents
-
-**Outputs:**
-- Cached data for offline access
-- Sync status indicators
-
-**Stored data:** Yes (IndexedDB via Firestore Persistence + Workbox)
-
-**Offline required:** Core responsibility
-
-**Explicitly NOT responsible for:**
-- Conflict resolution (uses "last-write-wins")
-- Data transformation
-- Business logic
-
----
-
-## 7. TTS Service
-**Responsibility:** Interface with Web Speech API for audio playback
-
-**Inputs:**
-- Text string
-- Language code (de-DE)
-- Voice settings (rate, pitch)
-
-**Outputs:**
-- Audible speech via device speakers
-
-**Stored data:** No
-
-**Offline required:** Yes (uses OS-level voices)
-
-**Explicitly NOT responsible for:**
-- Recording user voice
-- Speech recognition
-- Audio file management
-
----
-
-## 8. Taro Display Controller
-**Responsibility:** Manage Taro's symbolic appearances
-
-**Inputs:**
-- Current screen/route
-- Lesson completion events
-- Progress milestones
-
-**Outputs:**
-- Taro visibility flag
-- Taro state (neutral/celebrating)
-
-**Stored data:** No (derived from progress state)
-
-**Offline required:** Yes
-
-**Explicitly NOT responsible for:**
-- Animations
-- Dialog/interactions
-- Gamification mechanics
-
----
-
-## 9. Content Loader
-**Responsibility:** Fetch and prepare lesson content for consumption
-
-**Inputs:**
-- Lesson IDs
-- Cache status
-
-**Outputs:**
-- Lesson data objects
-- Loading states
-
-**Stored data:** Yes (via Offline Persistence Layer)
-
-**Offline required:** Yes (must serve from cache when offline)
-
-**Explicitly NOT responsible for:**
-- Determining which lessons to load
-- Rendering content
-- Progress tracking
-
----
-
-## System Integration Notes
-
-### Data Flow for Daily Ritual:
-1. **Authentication** → validates user
-2. **Progress Manager** → determines current lesson
-3. **Navigation Controller** → sets up available navigation
-4. **Content Loader** → fetches lesson data
-5. **Lesson Renderer** → displays HUHU structure
-6. **Exercise Evaluator** → validates answers
-7. **Progress Manager** → updates completion state
-8. **Offline Persistence** → syncs when online
-
-### Key Design Principles:
-- Each module has a single, clear responsibility
-- Modules communicate through well-defined interfaces
-- State is minimized and localized
-- Offline capability is built into each layer
-- No module depends on network availability for core functions
+Outputs: Image Component (Taro Neutral / Taro Happy).
