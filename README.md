@@ -29,7 +29,7 @@ The method did not emerge from a theory. It emerged from 15 years of classroom o
 | 2017 | *El viaje de Emilio* — first published case | RDU UNAM Vol.18(5) | Peer-reviewed article |
 | 2019 | Research stay — Hamburg fieldwork, C1 certification | Hochschule Offenburg / SZ-Universität Hamburg | DAAD-funded testimonials |
 | 2020 | M.A. thesis: 41% dropout diagnostic, Mexico–Germany comparison | UNAM Pedagogía | CONACYT-funded |
-| 2022 | First formally documented student case (Karen Morales) | CELEX-UAM | Evidence of established method |
+| 2022 | First formally documented student case (K.M.) | CELEX-UAM | Evidence of established method |
 | 2021→ | huhuGERMAN production system | CELEX-UAM | 30–40 students/trimester |
 | 2026 | Target publication: *Die Unterrichtspraxis* | In progress | First editorial milestone |
 
@@ -158,8 +158,8 @@ This platform is the intervention layer of a longitudinal research project. The 
 | Diagnostic study | M.A. thesis — Hamburg fieldwork | 2019–2020 | CONACYT-funded |
 | Intervention | huhuGERMAN production system | 2021→ | Active |
 | Publication target | *Die Unterrichtspraxis* (AATG) | May 2026 | Q3 ESCI |
-| Mid-range target | *Language Teaching Research* (SAGE) | 2027 | Q1 SSCI, IF 6.40 |
-| Long-range target | *System* (Elsevier) | 2028+ | Q1 SSCI, IF 6.90 |
+| Mid-range target | *Language Teaching Research* (SAGE) | 2027 | Q1 SSCI, target editorial |
+| Long-range target | *System* (Elsevier) | 2028+ | Q1 SSCI, target editorial |
 
 The editorial strategy follows ascending friction. DtU validates the classroom protocol and the case data. LTR validates the methodology. System requires n≥30 and a dedicated trimester for the quantitative layer.
 
@@ -194,9 +194,9 @@ The method operates at the intersection of:
 
 **Yasser Gandhi Hernández Esquivel**
 
-Learning Systems Architect · Germanista C1 · Senior Developer
+Profesor-investigador de alemán · Desarrollador web (Lic. UdeG) · Fundador de huhuGERMAN
 
-Lic. Letras Alemanas UNAM (2012) · MEd Pedagogía UNAM (2020) · Lic. Desarrollo de Sistemas Web UdeG (2025, GPA 98.5) · C1 Hochschule Offenburg (2019) · 11 Scopus peer-review contributions · Active reviewer RIEM/UNAM
+Lic. Letras Alemanas UNAM (2012) · MEd Pedagogía UNAM (2020) · Lic. Desarrollo de Sistemas Web UdeG (2025, GPA 98.5) · C1 Hochschule Offenburg (2019) · Active reviewer RIEM/UNAM
 
 This design documentation is the distillation of 15 years of pedagogical observation, theoretical research, and systems architecture. The MVP contract reflects not what is possible to build, but what is necessary to test the pedagogical hypothesis.
 
