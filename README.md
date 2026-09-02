@@ -2,205 +2,125 @@
 
 **Pre-implementation design documentation for the huhuGERMAN platform.**
 
-This repository is not a finished application. It is the design documentation that preceded implementation: a PRD, MVP contract, system decomposition, and type definitions written before a single line of production code existed.
+This repository preserves the product and architecture thinking that preceded implementation: PRD notes, scope decisions, type definitions, decomposition, and explicit non-goals.
 
-> A PRD that knows what it won't build is more mature than one that lists everything possible.
+It is not a finished application and should not be read as evidence that every listed technology or architecture was deployed.
 
----
+## Why this repository matters
 
-## The Pedagogical Problem
+The strongest artifact here is not a feature list. It is the boundary-setting work:
 
-Mexican university students arrive in Germany with **Hochdeutsch** — the formal, scholastic German taught in classrooms. They arrive unable to navigate **Umgangssprache** — the informal, colloquial German used in everyday social and academic interactions.
+- what the MVP needed to test;
+- what it deliberately excluded;
+- which responsibilities belonged to which component;
+- which assumptions later changed when the implementation met actual classroom use.
 
-This disconnect is a structural failure, not a learner failure. It contributes to the **41% dropout rate** among international students in Germany (DAAD/Reucher 2019). The gap is not grammatical. It is communicative and cultural. Students have learned German; they have not encountered real German.
+That makes this repository a record of product reasoning rather than a codebase.
 
-**huhuGERMAN's hypothesis:** This gap can be closed *before* students arrive — by introducing authentic German media from A1 level, with explicit metacognitive scaffolding that distinguishes global comprehension from selective comprehension. Mexico is the laboratory for error. Germany cannot be.
+## Problem framing
 
----
+The original project explored how to expose university German learners to authentic and colloquial language while preserving enough structure for reflection and feedback.
 
-## Origins: 2011, Not 2022
+The pedagogical hypothesis evolved across classroom practice and research. The software design came later and should not be backdated to the start of the teaching trajectory.
 
-The method did not emerge from a theory. It emerged from 15 years of classroom observation at FCPyS-UNAM (2011–2014) and CELEX-UAM Azcapotzalco (2015–present), formalized progressively through two UNAM theses.
+## MVP contract
 
-| Year | Milestone | Institution | Output |
-|------|-----------|-------------|--------|
-| 2011 | DaF instruction begins | FCPyS-UNAM | First longitudinal observation |
-| 2015 | B.A. thesis: Vandergrift metacognitive strategies + Gadamer *Bildung* as operative framework | CELE-UNAM | Titulación |
-| 2017 | *El viaje de Emilio* — first published case | RDU UNAM Vol.18(5) | Peer-reviewed article |
-| 2019 | Research stay — Hamburg fieldwork, C1 certification | Hochschule Offenburg / SZ-Universität Hamburg | DAAD-funded testimonials |
-| 2020 | M.A. thesis: 41% dropout diagnostic, Mexico–Germany comparison | UNAM Pedagogía | CONACYT-funded |
-| 2022 | First formally documented student case (K.M.) | CELEX-UAM | Evidence of established method |
-| 2021→ | huhuGERMAN production system | CELEX-UAM | 30–40 students/trimester |
-| 2026 | Target publication: *Die Unterrichtspraxis* | In progress | First editorial milestone |
+### In scope
 
-**The July 2022 case is evidence of a method with roots in 2011 — not its origin.** This chronology is not negotiable.
+- digital submission of written exercises;
+- structured lesson/session flow;
+- feedback on free-text submissions;
+- low-friction student identification;
+- explicit metacognitive reflection.
 
----
+### Explicitly out of scope
 
-## The H.U.H.U. Method: Structure Encoded in Acronym
+| Feature | Why excluded |
+|---|---|
+| Gamification / streaks | The intervention focused on reflection rather than reward loops. |
+| Penalty-driven failure states | Error was treated as information, not punishment. |
+| Hosted video catalog | Public source material already existed; hosting added maintenance without testing the core hypothesis. |
+| Large instructor dashboards | Not required for the first intervention flow. |
+| Social features | Outside the formative-assessment problem. |
+| Cross-session AI personalization | A research question, not an MVP requirement. |
+| Audio capture | Outside the first written-submission workflow. |
 
-The method's name encodes its four-phase structure:
+## Design-time type ideas
 
-| Phase | German | English | Function |
-|-------|--------|---------|----------|
-| **H** | Hochdeutsch | Formal register | Baseline input |
-| **U** | Umgangssprache | Colloquial register | Target exposure |
-| **H** | Halt! | Stop — metacognitive pause | Reflection |
-| **U** | Übung | Practice — production | Output |
+The TypeScript definitions in this repository were written as implementation contracts before the final technical path was known.
 
-Each 90-minute asynchronous session follows these four phases across six structured *Teile*. Sessions culminate in **mandatory metacognitive reflection written in Spanish** — the student's L1 — to separate metacognitive processing from linguistic performance. This is not a convenience; it is the operative definition of *Bildung* (Gadamer 2003) in the classroom.
+They describe concepts such as:
 
-**Primary material:** Y-Kollektiv documentaries (funk/ARD, public media) — authentic, free, linguistically rich, culturally relevant. Authentic input is introduced from A1. Regional variation and colloquial registers enter from week one, not after A2.
+- lesson phases;
+- metacognitive reflection;
+- typed exercise sections;
+- component responsibility boundaries.
 
----
+These definitions are design artifacts. They should not be confused with the code that ultimately ran in the private Apps Script production workflow.
 
-## MVP Contract: Explicit Scope
+## Responsibility boundaries
 
-### In Scope
-- Digital submission of written exercises
-- Automatic feedback on submitted free text
-- Session structure aligned with the H.U.H.U. four phases
-- Student identity resolution across platforms
+A recurring design principle was to state both what a component does and what it does not do.
 
-### Explicitly Out of Scope (and Why)
+Examples included:
 
-| Feature | Reason Excluded |
-|---------|-----------------|
-| Gamification / streaks | Contradicts the metacognitive focus. The method asks for reflection, not reward loops. |
-| Penalties / failure states | Philosophically incompatible. *"Hier darfst du Fehler machen."* Error is laboratory data, not a consequence. |
-| Video content in platform | Y-Kollektiv is public on YouTube. Hosting creates cost and maintenance with no pedagogical value. |
-| Teacher dashboards | Not the MVP's job. Instructor needs are out of scope for v1. |
-| Social features | Out of scope for formative assessment in a university context. |
-| AI personalization across sessions | The platform gives feedback per submission. Cross-session memory is a research question, not a product feature. |
-| Audio input | Mobile offline context. Native TTS accepted as known trade-off. |
+- submission handling without evaluating every answer;
+- feedback generation without assuming cross-session memory;
+- identity correlation without conflating it with authentication;
+- session tracking without forcing completion.
 
-**An out-of-scope list is a design document's most important section.** It defines maturity through deliberate exclusion, not feature accumulation.
+The value of those notes is architectural clarity, not proof that every service was implemented as a standalone production component.
 
----
+## What changed after planning
 
-## Type Definitions: The Implementation Contract
+The initial design considered an offline-first PWA and more deterministic feedback.
 
-The types defined here encode the H.U.H.U. structure in code *before* any UI or backend existed. They served as the implementation contract.
-```typescript
-interface Lesson {
-  id: string;
-  woche: number;
-  niveau: 'A1' | 'A2' | 'B1' | 'B2' | 'C1';
-  
-  hochdeutsch: LessonPhase;      // Formal input
-  umgangssprache: LessonPhase;   // Colloquial exposure
-  halt: MetacognitivePhase;      // Reflection pause
-  uebung: PracticePhase;         // Production
-}
+Later experiments with free-text feedback and external AI APIs changed the technical direction. That adaptation produced separate repositories rather than a single linear migration.
 
-interface LessonPhase {
-  title: string;
-  content: string;
-  audioId?: string;
-  contextNote?: string;
-}
+Current ecosystem state:
 
-interface MetacognitivePhase {
-  title: string;
-  explanation: string;
-  reflectionPrompt: string;      // In Spanish (L1)
-  metaphor?: string;             // Conceptual anchor
-}
+- `huhugerman-instrument` — private production Apps Script / Forms / Sheets workflow;
+- `huhugerman-frontend` — experimental Astro portal using an AI API;
+- `feature/dynamic-lessons` — unmerged TypeScript + Zod domain-modeling branch;
+- `huhugerman-backend` — separate identity-normalization prototype;
+- `resilient-api-integration-demo` — public controlled-failure engineering demo.
 
-type ExerciseSection =
-  | { type: 'MultipleChoice'; options: string[]; correct: number }
-  | { type: 'FillInBlank'; template: string; answer: string }
-  | { type: 'FreeText'; rubric: string };
-```
+These are related experiments and implementations, not successive versions of one deployed stack.
 
-The `ExerciseSection` discriminated union enforces that every exercise has a known type at compile time. No `any`. No implicit fallbacks. This is not a convenience — it is a requirement for a system that must be auditable and reproducible as research data.
+## Technology status
 
----
+| Status | Technologies |
+|---|---|
+| Design-time contracts in this repo | TypeScript |
+| Private production workflow implemented elsewhere | Google Apps Script · Google Forms · Google Sheets |
+| Experimental portal implemented elsewhere | Astro · TypeScript · Supabase client · DeepSeek API |
+| Domain validation prototype | Zod on `feature/dynamic-lessons` |
+| Historical / planned ideas | PWA, broader backend decomposition, cross-session personalization |
 
-## System Decomposition: Responsibility Boundaries
+## Research chronology vs software chronology
 
-| Module | Responsibility | What It Does NOT Do |
-|--------|---------------|---------------------|
-| SubmissionService | Accept and validate submissions | Evaluate correctness |
-| FeedbackEngine | Generate language feedback | Remember past submissions |
-| IdentityResolver | Correlate student identities | Authenticate users |
-| LessonLoader | Serve lesson content | Personalize content per student |
-| SessionTracker | Record session state | Enforce completion requirements |
+The research and teaching trajectory predates the software implementation.
 
-**The "What it does NOT do" column is as important as the responsibilities.** Clear boundaries prevent scope creep and make systems maintainable — and in a research context, auditable.
+That distinction matters.
 
----
+A long pedagogical history can explain why certain software constraints were chosen, but it is not evidence of equivalent years of software-engineering production experience.
 
-## Why the MVP Wasn't Implemented as a PWA
+## Related repositories
 
-The original PRD considered an offline-first PWA with deterministic feedback (no AI). The production context changed the decision.
-
-**UAM Azcapotzalco runs asynchronous written submission workflows.** Students submit free-text responses. Deterministic feedback works for Duolingo. It doesn't work for formative writing assessment where the research question depends on what the student actually produced, not whether they clicked the right answer.
-
-The shift to AI-powered free-text feedback required:
-- Server-side API calls (no offline determinism)
-- Session state persistence (no local-only storage)
-- A web portal (not a PWA)
-
-Real context overrode the original technical preference. This is not a failure of planning — it is planning that adapted to documented reality.
-
----
-
-## Research Trajectory
-
-This platform is the intervention layer of a longitudinal research project. The platform is not the research; it is the instrument.
-
-| Phase | Document | Year | Output |
-|-------|----------|------|--------|
-| Observation | Teaching practice, FCPyS-UNAM | 2011–2014 | Field notes |
-| Theoretical foundation | B.A. thesis: Vandergrift + Gadamer *Bildung* | 2015 | Titulación UNAM |
-| Method publication | *El viaje de Emilio*, RDU UNAM | 2017 | Peer-reviewed |
-| Diagnostic study | M.A. thesis — Hamburg fieldwork | 2019–2020 | CONACYT-funded |
-| Intervention | huhuGERMAN production system | 2021→ | Active |
-| Publication target | *Die Unterrichtspraxis* (AATG) | May 2026 | Q3 ESCI |
-| Mid-range target | *Language Teaching Research* (SAGE) | 2027 | Q1 SSCI, target editorial |
-| Long-range target | *System* (Elsevier) | 2028+ | Q1 SSCI, target editorial |
-
-The editorial strategy follows ascending friction. DtU validates the classroom protocol and the case data. LTR validates the methodology. System requires n≥30 and a dedicated trimester for the quantitative layer.
-
----
-
-## Theoretical Framework (Abbreviated)
-
-The method operates at the intersection of:
-
-- **Krashen (1982)** — comprehensible input i+1; h.u.h.u. redefines what makes authentic input comprehensible (metacognitive scaffolding, not simplification)
-- **Vandergrift (1999, 2022) / Goh** — metacognitive listening: planning, monitoring, resolution, evaluation; operationalized across six *Teile* from week 1 at A1
-- **Gadamer (2003)** — *Bildung* as transformative encounter with the Other; the authentic audio is the Other; the decision to persist is the student's act
-- **Borg (2013)** — teacher research as legitimate epistemology; 15 years of systematic classroom observation is the evidential base, not a limitation
-
----
-
-## Stack
-
-`TypeScript` · `Google Apps Script` · `Google Sheets` · `Astro` · `Supabase` · `Zod`
-
----
-
-## Related
-
-→ **[huhugerman.com](https://huhugerman.com)** — Production system  
-→ **[resilient-api-integration-demo](https://github.com/yassergandhi/resilient-api-integration-demo)** — Chaos engineering diagnostic  
-→ **[yassergandhi.dev](https://yassergandhi.dev)** — Professional portfolio
-
----
+- [huhugerman-frontend](https://github.com/yassergandhi/huhugerman-frontend)
+- [huhugerman-backend](https://github.com/yassergandhi/huhugerman-backend)
+- [resilient-api-integration-demo](https://github.com/yassergandhi/resilient-api-integration-demo)
+- `huhugerman-instrument` — private production workflow
 
 ## About
 
 **Yasser Gandhi Hernández Esquivel**
 
-Profesor-investigador de alemán · Desarrollador web (Lic. UdeG) · Fundador de huhuGERMAN
+Software Developer · German lecturer and researcher
 
-Lic. Letras Alemanas UNAM (2012) · MEd Pedagogía UNAM (2020) · Lic. Desarrollo de Sistemas Web UdeG (2025, GPA 98.5) · C1 Hochschule Offenburg (2019) · Active reviewer RIEM/UNAM
+B.S. Web Systems Development (UdeG, 2025) · M.Ed. Pedagogy (UNAM, 2020) · German Studies (UNAM, 2012)
 
-This design documentation is the distillation of 15 years of pedagogical observation, theoretical research, and systems architecture. The MVP contract reflects not what is possible to build, but what is necessary to test the pedagogical hypothesis.
-
-→ [yassergandhi.dev](https://yassergandhi.dev) · [LinkedIn](https://linkedin.com/in/yassergandhi)
+[LinkedIn](https://linkedin.com/in/yassergandhi)
 
 ---
 
